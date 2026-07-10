@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Mail Ảo - Temporary Email Service</title>
+    <!-- GitHub Repo: https://github.com/tuquangnam07/Web-mail-ao -->
+    <!-- Deploy: https://web-mail-ao.pages.dev/ -->
+    <style>
+        /* ================================
+           RESET & BASE
+        ================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ================================
+           HEADER
+        ================================ */
+        header {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            padding: 20px 30px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .logo-icon { font-size: 32px; }
+        .logo-text { color: #e2e8f0; }
+        .highlight { color: #64ffda; }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(100, 255, 218, 0.15);
+            color: #64ffda;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .badge a {
+            color: #64ffda;
+            text-decoration: none;
+        }
+
+        .badge a:hover {
+            text-decoration: underline;
+        }
+
+        .btn-refresh {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #e2e8f0;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(180deg);
+        }
+
+        /* ================================
+           MAIN LAYOUT
+        ================================ */
+        main {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            main { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ================================
+           CARDS
+        ================================ */
+        .card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2, .card h3 {
+            margin-bottom: 16px;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .card h2 { font-size: 20px; }
+        .card h3 { font-size: 16px; }
+
+        /* ================================
+           FORM
+        ================================ */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #a0aec0;
+            font-size: 13px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            font-size: 14px;
+            transition: 0.3s;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.05);
+            color: #e2e8f0;
+        }
+
+        select option {
+            background: #1a1a2e;
+            color: #e2e8f0;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #64ffda;
+            box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.1);
+        }
+
+        input::placeholder { color: #718096; }
+
+        small {
+            display: block;
+            color: #718096;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        /* ================================
+           BUTTONS
+        ================================ */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #64ffda, #00bfa5);
+            color: #1a1a2e;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 8px 25px rgba(100, 255, 218, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-success {
+            background: rgba(100, 255, 218, 0.15);
+            color: #64ffda;
+        }
+
+        .btn-success:hover {
+            background: rgba(100, 255, 218, 0.25);
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 12px;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-copy-otp {
+            background: rgba(255, 217, 61, 0.2);
+            color: #ffd93d;
+            border: 1px solid rgba(255, 217, 61, 0.3);
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .btn-copy-otp:hover {
+            background: rgba(255, 217, 61, 0.3);
+        }
+
+        /* ================================
+           DOMAIN LIST - ẨN HOÀN TOÀN
+        ================================ */
+        #domainCard {
+            display: none !important;
+        }
+
+        /* ================================
+           TOKEN CARD - ẨN HOÀN TOÀN
+        ================================ */
+        #tokenCard {
+            display: none !important;
+        }
+
+        /* ================================
+           EMAIL LIST
+        ================================ */
+        .email-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .email-list {
+            min-height: 300px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .email-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .email-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .email-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #718096;
+            font-size: 15px;
+        }
+
+        .email-item {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            border-left: 3px solid #64ffda;
+        }
+
+        .email-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
+        }
+
+        .email-item .from {
+            font-weight: 600;
+            color: #e2e8f0;
+        }
+
+        .email-item .subject {
+            color: #a0aec0;
+            margin: 4px 0;
+            font-size: 14px;
+        }
+
+        .email-item .time {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .email-item.unread {
+            border-left-color: #ffd93d;
+            background: rgba(255, 217, 61, 0.06);
+        }
+
+        /* ================================
+           EMAIL DETAIL
+        ================================ */
+        #emailDetailCard {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        #emailDetailCard::-webkit-scrollbar {
+            width: 4px;
+        }
+        #emailDetailCard::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        #emailDetailCard::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .email-body {
+            background: rgba(255, 255, 255, 0.04);
+            padding: 16px;
+            border-radius: 10px;
+            margin: 12px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #cbd5e0;
+        }
+
+        .email-body img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .verify-link-box {
+            margin-top: 12px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            background: rgba(100, 255, 218, 0.06);
+        }
+
+        .verify-link-box.otp-box {
+            border-color: rgba(255, 217, 61, 0.3);
+            background: rgba(255, 217, 61, 0.08);
+        }
+
+        .verify-link-box .label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .verify-link-box .link-value {
+            color: #64ffda;
+            word-break: break-all;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .verify-link-box .link-value:hover {
+            text-decoration: underline;
+        }
+
+        .otp-code {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffd93d;
+            letter-spacing: 4px;
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 4px 0;
+        }
+
+        .otp-code.small {
+            font-size: 24px;
+        }
+
+        .detected-badge {
+            font-size: 11px;
+            background: rgba(100, 255, 218, 0.15);
+            color: #64ffda;
+            padding: 2px 10px;
+            border-radius: 12px;
+            margin-left: 8px;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        /* ================================
+           CURRENT INBOX
+        ================================ */
+        #currentInboxCard {
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            background: rgba(100, 255, 218, 0.04);
+        }
+
+        .inbox-address {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .inbox-address span {
+            font-family: monospace;
+            font-size: 15px;
+            color: #64ffda;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: #a0aec0;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+        }
+
+        /* ================================
+           TOAST NOTIFICATION
+        ================================ */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 400px;
+        }
+
+        .toast {
+            padding: 14px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            animation: slideUp 0.3s ease;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .toast.success { background: #00bfa5; color: #1a1a2e; }
+        .toast.error { background: #ff6b6b; color: white; }
+        .toast.info { background: #4a9eff; color: white; }
+        .toast.otp { background: #ffd93d; color: #1a1a2e; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* ================================
+           SPINNER
+        ================================ */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .spinner-dark {
+            border-color: rgba(0, 0, 0, 0.2);
+            border-top-color: #1a1a2e;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ================================
+           STATUS BADGE
+        ================================ */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-connected { background: rgba(100, 255, 218, 0.15); color: #64ffda; }
+        .status-error { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+
+        /* ================================
+           RESPONSIVE
+        ================================ */
+        @media (max-width: 640px) {
+            body { padding: 12px; }
+            header { padding: 14px 18px; }
+            .logo { font-size: 22px; }
+            .card { padding: 16px; }
+            .otp-code { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <span class="logo-icon">📧</span>
+                <span class="logo-text">Web Mail <span class="highlight">Ảo</span></span>
+                <span class="badge" style="font-size:15px;">v2.0.0 - tuquangnam07</span>
+            </div>
+            <div class="header-info">
+                <span class="badge">🔗 API Mail.tm</span>
+                <span class="badge">📦 <a href="https://github.com/tuquangnam07/Web-mail-ao" target="_blank">GitHub</a></span>
+                <span class="badge">🌐 <a href="https://web-mail-ao.pages.dev/" target="_blank">Pages.dev</a></span>
+                <span id="connectionStatus" class="status-badge status-connected">🟢 Đã kết nối</span>
+                <button id="refreshBtn" class="btn-refresh" title="Làm mới">🔄</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- LEFT PANEL -->
+            <div class="panel panel-left">
+                <div class="card">
+                    <h2>📬 Tạo hộp thư</h2>
+                    <div class="form-group">
+                        <label for="domainSelect">Chọn tên miền:</label>
+                        <select id="domainSelect">
+                            <option value="">Đang tải...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="usernameInput">Tên đăng nhập (tùy chọn):</label>
+                        <input type="text" id="usernameInput" placeholder="Để trống tự tạo" maxlength="64">
+                        <small>Chỉ chữ thường, số, dấu . - _</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordInput">Mật khẩu:</label>
+                        <input type="text" id="passwordInput" placeholder="Để trống tự tạo" maxlength="64">
+                        <small>Để trống để tự tạo mật khẩu ngẫu nhiên</small>
+                    </div>
+                    <button id="createAccountBtn" class="btn btn-primary">🚀 Tạo hộp thư</button>
+                </div>
+
+                <!-- CARD TÊN MIỀN - ĐÃ ẨN -->
+                <div class="card" id="domainCard">
+                    <h3>🌐 Tên miền hỗ trợ</h3>
+                    <ul id="domainList" class="domain-list">
+                        <li>Đang tải...</li>
+                    </ul>
+                </div>
+
+                <div class="card" id="currentInboxCard" style="display:none;">
+                    <h3>📫 Hộp thư của bạn</h3>
+                    <div class="inbox-address">
+                        <span id="currentAddress">-</span>
+                        <button class="copy-btn" onclick="copyAddress()">📋 Copy</button>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 13px; color: #a0aec0;">
+                        <span id="inboxStatus">🟢 Đang hoạt động</span>
+                    </div>
+                    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button id="deleteAccountBtn" class="btn btn-danger btn-sm">🗑️ Xóa tài khoản</button>
+                        <button id="checkMessagesBtn" class="btn btn-secondary btn-sm">🔄 Kiểm tra</button>
+                    </div>
+                </div>
+
+                <!-- CARD TOKEN - ĐÃ ẨN -->
+                <div class="card" id="tokenCard">
+                    <h3>🔑 Token</h3>
+                    <div style="font-family: monospace; font-size: 12px; color: #64ffda; word-break: break-all; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                        <span id="tokenDisplay"></span>
+                    </div>
+                    <button id="copyTokenBtn" class="btn btn-secondary btn-sm" style="margin-top: 8px;">📋 Copy Token</button>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="panel panel-right">
+                <div class="card">
+                    <div class="email-header">
+                        <h2>📨 Hộp thư đến</h2>
+                        <div class="btn-group">
+                            <button id="refreshMessagesBtn" class="btn btn-secondary btn-sm">🔄 Làm mới</button>
+                            <button id="clearEmailsBtn" class="btn btn-secondary btn-sm">🗑️ Xóa hiển thị</button>
+                        </div>
+                    </div>
+                    <div id="emailList" class="email-list">
+                        <div class="empty-state">📭 Chưa có email nào. Tạo hộp thư và đợi email đến.</div>
+                    </div>
+                </div>
+
+                <div class="card" id="emailDetailCard" style="display:none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3>📄 Nội dung email</h3>
+                        <button id="closeDetailBtn" class="btn btn-secondary btn-sm">✕ Đóng</button>
+                    </div>
+                    <div id="emailDetail">
+                        <p><strong>Từ:</strong> <span id="emailFrom" style="color:#64ffda;"></span></p>
+                        <p><strong>Chủ đề:</strong> <span id="emailSubject"></span></p>
+                        <p><strong>Thời gian:</strong> <span id="emailTime" style="color:#a0aec0; font-size:13px;"></span></p>
+                        <div class="email-body">
+                            <div id="emailContent"></div>
+                        </div>
+                        <div id="verifyLinkContainer"></div>
+                        <div class="detail-actions">
+                            <button id="toggleViewBtn" class="btn btn-secondary btn-sm" style="display:none;">📄 Xem text</button>
+                            <button id="deleteMessageBtn" class="btn btn-danger btn-sm">🗑️ Xóa email</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>💳 Thông tin tài khoản</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px;">
+                        <div><span style="color:#a0aec0;">Địa chỉ:</span> <span id="accAddress" style="color:#64ffda;">-</span></div>
+                        <div><span style="color:#a0aec0;">Hạn mức:</span> <span id="accQuota">-</span></div>
+                        <div><span style="color:#a0aec0;">Đã dùng:</span> <span id="accUsed">-</span></div>
+                        <div><span style="color:#a0aec0;">Trạng thái:</span> <span id="accStatus" style="color:#64ffda;">Chưa có</span></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer style="text-align: center; margin-top: 30px; padding: 20px; color: #718096; font-size: 13px; border-top: 1px solid rgba(255,255,255,0.05);">
+        <p>
+            📧 <strong>Web Mail Ảo</strong> v2.0.0 — 
+            <a href="https://github.com/tuquangnam07/Web-mail-ao" target="_blank" style="color: #64ffda; text-decoration: none;">GitHub Repository</a> — 
+            <a href="https://web-mail-ao.pages.dev/" target="_blank" style="color: #64ffda; text-decoration: none;">web-mail-ao.pages.dev</a>
+        </p>
+        <p style="margin-top: 4px; font-size: 12px;">Built with ❤️ by tuquangnam07 | Powered by Mail.tm API</p>
+    </footer>
+
+    <script>
+        // ================================
+        // 1. CONFIGURATION
+        // ================================
+        const API_BASE = 'https://api.mail.tm';
+
+        let token = null;
+        let accountId = null;
+        let address = null;
+        let password = null;
+        let currentMessageId = null;
+        let messages = [];
+        let domains = [];
+        let isHtmlView = true;
+        let currentHtmlContent = '';
+        let currentTextContent = '';
+
+        // DOM Elements
+        const domainSelect = document.getElementById('domainSelect');
+        const domainList = document.getElementById('domainList');
+        const usernameInput = document.getElementById('usernameInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const createAccountBtn = document.getElementById('createAccountBtn');
+        const currentInboxCard = document.getElementById('currentInboxCard');
+        const currentAddress = document.getElementById('currentAddress');
+        const inboxStatus = document.getElementById('inboxStatus');
+        const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+        const checkMessagesBtn = document.getElementById('checkMessagesBtn');
+        const refreshMessagesBtn = document.getElementById('refreshMessagesBtn');
+        const clearEmailsBtn = document.getElementById('clearEmailsBtn');
+        const emailList = document.getElementById('emailList');
+        const emailDetailCard = document.getElementById('emailDetailCard');
+        const closeDetailBtn = document.getElementById('closeDetailBtn');
+        const emailFrom = document.getElementById('emailFrom');
+        const emailSubject = document.getElementById('emailSubject');
+        const emailTime = document.getElementById('emailTime');
+        const emailContent = document.getElementById('emailContent');
+        const verifyLinkContainer = document.getElementById('verifyLinkContainer');
+        const toggleViewBtn = document.getElementById('toggleViewBtn');
+        const deleteMessageBtn = document.getElementById('deleteMessageBtn');
+        const tokenCard = document.getElementById('tokenCard');
+        const tokenDisplay = document.getElementById('tokenDisplay');
+        const copyTokenBtn = document.getElementById('copyTokenBtn');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const accAddress = document.getElementById('accAddress');
+        const accQuota = document.getElementById('accQuota');
+        const accUsed = document.getElementById('accUsed');
+        const accStatus = document.getElementById('accStatus');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // ================================
+        // 2. TOAST
+        // ================================
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100px)';
+                toast.style.transition = '0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // ================================
+        // 3. API CALLS
+        // ================================
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE}${endpoint}`;
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch(url, {
+                ...options,
+                headers,
+                body: options.body ? JSON.stringify(options.body) : undefined
+            });
+
+            if (!response.ok) {
+                let errorMsg = `HTTP ${response.status}`;
+                try {
+                    const data = await response.json();
+                    if (data.detail) errorMsg = data.detail;
+                    else if (data.error) errorMsg = data.error;
+                } catch (e) {}
+                throw new Error(errorMsg);
+            }
+
+            if (response.status === 204) return null;
+            return await response.json();
+        }
+
+        // ================================
+        // 4. DOMAIN MANAGEMENT
+        // ================================
+        async function loadDomains() {
+            try {
+                const data = await apiCall('/domains');
+                domains = data['hydra:member'] || data || [];
+                
+                domainList.innerHTML = '';
+                domainSelect.innerHTML = '';
+                
+                domains.forEach(domain => {
+                    const li = document.createElement('li');
+                    li.textContent = domain.domain;
+                    domainList.appendChild(li);
+                    
+                    const option = document.createElement('option');
+                    option.value = domain.domain;
+                    option.textContent = domain.domain;
+                    domainSelect.appendChild(option);
+                });
+                
+                if (domains.length > 0) {
+                    domainSelect.value = domains[0].domain;
+                }
+                
+                // Không hiển thị toast để tránh lộ
+                // showToast(`✅ Đã tải ${domains.length} tên miền`, 'success');
+            } catch (error) {
+                domainList.innerHTML = `<li style="color:#ff6b6b;">❌ Lỗi: ${error.message}</li>`;
+                // Không hiển thị toast lỗi
+            }
+        }
+
+        // ================================
+        // 5. CREATE ACCOUNT
+        // ================================
+        async function createAccount() {
+            const domain = domainSelect.value;
+            let username = usernameInput.value.trim();
+            let pwd = passwordInput.value.trim();
+            
+            if (!domain) {
+                showToast('⚠️ Vui lòng chọn tên miền!', 'error');
+                return;
+            }
+            
+            if (!username) {
+                const random = Math.random().toString(36).substring(2, 10);
+                username = `user_${random}`;
+                usernameInput.value = username;
+            }
+            
+            if (!pwd) {
+                pwd = Math.random().toString(36).substring(2, 12) + 
+                      Math.random().toString(36).substring(2, 12);
+                passwordInput.value = pwd;
+            }
+            
+            const fullAddress = `${username}@${domain}`;
+            
+            try {
+                createAccountBtn.disabled = true;
+                createAccountBtn.innerHTML = '<span class="spinner spinner-dark"></span> Đang tạo...';
+                
+                const accountData = await apiCall('/accounts', {
+                    method: 'POST',
+                    body: { address: fullAddress, password: pwd }
+                });
+                
+                accountId = accountData.id;
+                address = accountData.address;
+                password = pwd;
+                
+                const tokenData = await apiCall('/token', {
+                    method: 'POST',
+                    body: { address: fullAddress, password: pwd }
+                });
+                
+                token = tokenData.token;
+                
+                await loadAccountInfo();
+                
+                currentAddress.textContent = address;
+                currentInboxCard.style.display = 'block';
+                inboxStatus.textContent = '🟢 Đã đăng nhập';
+                inboxStatus.style.color = '#64ffda';
+                
+                // Ẩn token card
+                tokenCard.style.display = 'none';
+                
+                accAddress.textContent = address;
+                
+                localStorage.setItem('mailtm_token', token);
+                localStorage.setItem('mailtm_address', address);
+                localStorage.setItem('mailtm_accountId', accountId);
+                
+                showToast(`✅ Đã tạo hộp thư: ${address}`, 'success');
+                
+                setTimeout(() => fetchMessages(), 3000);
+                
+                createAccountBtn.innerHTML = '✅ Đã tạo';
+                setTimeout(() => {
+                    createAccountBtn.innerHTML = '🚀 Tạo hộp thư';
+                    createAccountBtn.disabled = false;
+                }, 2000);
+                
+            } catch (error) {
+                showToast(`❌ Lỗi: ${error.message}`, 'error');
+                createAccountBtn.innerHTML = '🚀 Tạo hộp thư';
+                createAccountBtn.disabled = false;
+            }
+        }
+
+        // ================================
+        // 6. LOAD ACCOUNT INFO
+        // ================================
+        async function loadAccountInfo() {
+            try {
+                if (!token) return;
+                const data = await apiCall('/me');
+                accQuota.textContent = data.quota || '∞';
+                accUsed.textContent = data.used || 0;
+                accStatus.textContent = data.isDisabled ? '🔴 Đã khóa' : '🟢 Hoạt động';
+                accStatus.style.color = data.isDisabled ? '#ff6b6b' : '#64ffda';
+                connectionStatus.className = 'status-badge status-connected';
+                connectionStatus.textContent = '🟢 Đã kết nối';
+                return data;
+            } catch (error) {
+                connectionStatus.className = 'status-badge status-error';
+                connectionStatus.textContent = '🔴 Lỗi kết nối';
+                // showToast('Không thể lấy thông tin tài khoản', 'error');
+            }
+        }
+
+        // ================================
+        // 7. FETCH MESSAGES
+        // ================================
+        async function fetchMessages() {
+            if (!token) {
+                showToast('⚠️ Vui lòng tạo hộp thư trước!', 'error');
+                return;
+            }
+            
+            try {
+                const data = await apiCall('/messages');
+                const items = data['hydra:member'] || data || [];
+                messages = items;
+                displayMessages(items);
+                if (items.length === 0) {
+                    // showToast('📭 Chưa có email nào', 'info');
+                } else {
+                    showToast(`📨 Đã nhận ${items.length} email`, 'success');
+                }
+                await loadAccountInfo();
+            } catch (error) {
+                showToast(`❌ Lỗi lấy email: ${error.message}`, 'error');
+            }
+        }
+
+        // ================================
+        // 8. DISPLAY MESSAGES
+        // ================================
+        function displayMessages(messages) {
+            if (!messages || messages.length === 0) {
+                emailList.innerHTML = '<div class="empty-state">📭 Chưa có email nào.</div>';
+                return;
+            }
+            
+            let html = '';
+            messages.forEach((msg, index) => {
+                const time = msg.createdAt ? new Date(msg.createdAt).toLocaleString('vi-VN') : 'N/A';
+                const from = msg.from?.address || msg.from || 'Unknown';
+                const subject = msg.subject || '(Không có chủ đề)';
+                const isUnread = !msg.seen;
+                
+                html += `
+                    <div class="email-item ${isUnread ? 'unread' : ''}" data-index="${index}">
+                        <div class="from">📧 ${from}</div>
+                        <div class="subject">${subject}</div>
+                        <div class="time">${time}</div>
+                    </div>
+                `;
+            });
+            
+            emailList.innerHTML = html;
+            
+            document.querySelectorAll('.email-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const index = parseInt(this.dataset.index);
+                    showMessageDetail(messages[index]);
+                });
+            });
+        }
+
+        // ================================
+        // 9. SHOW MESSAGE DETAIL
+        // ================================
+        async function showMessageDetail(message) {
+            if (!message) return;
+            
+            try {
+                let msg = message;
+                if (message['@id']) {
+                    const id = message['@id'].split('/').pop();
+                    msg = await apiCall(`/messages/${id}`);
+                    currentMessageId = msg.id || id;
+                } else {
+                    currentMessageId = message.id;
+                }
+                
+                emailFrom.textContent = msg.from?.address || msg.from || 'Không rõ';
+                emailSubject.textContent = msg.subject || '(Không có chủ đề)';
+                emailTime.textContent = msg.createdAt ? new Date(msg.createdAt).toLocaleString('vi-VN') : 'N/A';
+                
+                currentHtmlContent = msg.html ? msg.html.join('') : '';
+                currentTextContent = msg.text || '';
+                
+                if (!currentHtmlContent && currentTextContent) {
+                    currentHtmlContent = currentTextContent.replace(/\n/g, '<br>');
+                }
+                
+                if (currentHtmlContent) {
+                    isHtmlView = true;
+                    emailContent.innerHTML = currentHtmlContent;
+                    toggleViewBtn.style.display = currentTextContent ? 'inline-flex' : 'none';
+                    toggleViewBtn.textContent = '📄 Xem text';
+                } else {
+                    isHtmlView = false;
+                    emailContent.textContent = currentTextContent || 'Không có nội dung';
+                    toggleViewBtn.style.display = 'none';
+                }
+                
+                const detected = detectOTPAndLinks(msg);
+                renderDetectedContent(detected);
+                
+                if (!msg.seen) {
+                    try {
+                        await apiCall(`/messages/${currentMessageId}`, {
+                            method: 'PATCH',
+                            body: { seen: true }
+                        });
+                        msg.seen = true;
+                        fetchMessages();
+                    } catch (e) {}
+                }
+                
+                emailDetailCard.style.display = 'block';
+                emailDetailCard.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                showToast('❌ Lỗi đọc email: ' + error.message, 'error');
+            }
+        }
+
+        // ================================
+        // 10. PHÁT HIỆN OTP & LINK
+        // ================================
+        function detectOTPAndLinks(message) {
+            const htmlContent = message.html ? message.html.join('') : '';
+            const textContent = message.text || '';
+            
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlContent;
+            const pureText = tempDiv.textContent || textContent;
+            
+            const result = {
+                otps: [],
+                links: [],
+                raw: htmlContent + ' ' + textContent
+            };
+            
+            // PHÁT HIỆN OTP
+            const foundOtps = new Set();
+            const allNumbers = pureText.match(/\b\d{4,8}\b/g) || [];
+            
+            for (const num of allNumbers) {
+                if (num.length < 4 || num.length > 8) continue;
+                if (num.startsWith('0') && num.length >= 10) continue;
+                
+                if (num.length === 8) {
+                    const day = parseInt(num.substring(0, 2));
+                    const month = parseInt(num.substring(2, 4));
+                    const year = parseInt(num.substring(4, 8));
+                    if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 2000 && year <= 2030) {
+                        continue;
+                    }
+                }
+                
+                if (num.match(/^(19|20)\d{2}$/)) continue;
+                foundOtps.add(num);
+            }
+            
+            const specialPatterns = [
+                /<b[^>]*>(\d{4,8})<\/b>/gi,
+                /<strong[^>]*>(\d{4,8})<\/strong>/gi,
+                /(?:OTP|Mã|CODE|Code|code|Mã xác nhận|mã xác minh|mã bên dưới|mã số)\s*[:：]?\s*(\d{4,8})/gi,
+                /(?:verification|confirm|verify)\s*(?:code|mã)\s*(?:is|:|là)\s*(\d{4,8})/gi,
+            ];
+            
+            for (const pattern of specialPatterns) {
+                let match;
+                const regex = new RegExp(pattern.source, pattern.flags || 'gi');
+                while ((match = regex.exec(htmlContent + ' ' + textContent)) !== null) {
+                    const code = match[1] || match[0];
+                    const cleanCode = code.replace(/[\s\-]/g, '');
+                    if (cleanCode.length >= 4 && cleanCode.length <= 8) {
+                        if (!isNumberInUrl(cleanCode, htmlContent + ' ' + textContent)) {
+                            foundOtps.add(cleanCode);
+                        }
+                    }
+                }
+            }
+            
+            const sortedOtps = Array.from(foundOtps).sort((a, b) => {
+                if (a.length === 8 && b.length !== 8) return -1;
+                if (b.length === 8 && a.length !== 8) return 1;
+                if (a.length === 6 && b.length !== 6) return -1;
+                if (b.length === 6 && a.length !== 6) return 1;
+                return a.length - b.length;
+            });
+            
+            result.otps = sortedOtps;
+            
+            // PHÁT HIỆN LINK
+            const linkPatterns = [
+                /href=["']([^"']*?)["']/gi,
+                /src=["']([^"']*?)["']/gi,
+                /https?:\/\/[^\s<>"'\]]+/gi,
+            ];
+            
+            const foundLinks = new Set();
+            
+            for (const pattern of linkPatterns) {
+                let match;
+                const regex = new RegExp(pattern.source, pattern.flags || 'gi');
+                while ((match = regex.exec(htmlContent + ' ' + textContent)) !== null) {
+                    let link = match[1] || match[0];
+                    if (link && link.length > 5) {
+                        if (link.match(/\.(png|jpg|jpeg|gif|svg|css|js|ico|webp|bmp|tiff)/i)) continue;
+                        if (link.match(/^(mailto|tel):/i)) continue;
+                        if (!link.match(/^https?:\/\//i) && !link.startsWith('//')) {
+                            link = 'http://' + link;
+                        }
+                        if (link.length > 10) {
+                            foundLinks.add(link);
+                        }
+                    }
+                }
+            }
+            
+            const sortedLinks = Array.from(foundLinks).sort((a, b) => {
+                const keywords = ['verify', 'confirm', 'activate', 'validate', 'auth', 'xacminh', 'xacnhan', 'kichhoat'];
+                const scoreA = keywords.some(k => a.toLowerCase().includes(k)) ? 1 : 0;
+                const scoreB = keywords.some(k => b.toLowerCase().includes(k)) ? 1 : 0;
+                return scoreB - scoreA;
+            });
+            
+            result.links = sortedLinks;
+            
+            return result;
+        }
+
+        function isNumberInUrl(number, content) {
+            const urlRegex = /https?:\/\/[^\s<>"'\]]+/gi;
+            let match;
+            while ((match = urlRegex.exec(content)) !== null) {
+                const url = match[0];
+                if (url.includes(number)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ================================
+        // 11. RENDER DETECTED CONTENT
+        // ================================
+        function renderDetectedContent(detected) {
+            verifyLinkContainer.innerHTML = '';
+            
+            let hasContent = false;
+            
+            if (detected.otps && detected.otps.length > 0) {
+                hasContent = true;
+                const otp = detected.otps[0];
+                const isShort = otp.length <= 4;
+                
+                let otpHTML = `
+                    <div class="verify-link-box otp-box">
+                        <span class="label">🔑 Mã xác minh (OTP) phát hiện <span class="detected-badge">Tự động</span></span>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px;">
+                            <span class="otp-code ${isShort ? 'small' : ''}">${otp}</span>
+                            <button onclick="copyText('${otp}')" class="btn-copy-otp">📋 Copy mã</button>
+                            <button onclick="showOTPToast('${otp}')" class="btn-copy-otp" style="background: rgba(100,255,218,0.15); color: #64ffda; border-color: rgba(100,255,218,0.2);">
+                                🔔 Nhắc OTP
+                            </button>
+                        </div>
+                        <div style="font-size: 12px; color: #a0aec0; margin-top: 4px;">
+                            💡 Dùng mã này để xác minh tài khoản
+                        </div>
+                    </div>
+                `;
+                verifyLinkContainer.innerHTML += otpHTML;
+                showToast(`🔑 Đã phát hiện mã OTP: ${otp}`, 'otp', 4000);
+            }
+            
+            if (detected.links && detected.links.length > 0) {
+                hasContent = true;
+                const displayLinks = detected.links.slice(0, 5);
+                
+                let linkHTML = `
+                    <div class="verify-link-box" style="border-color: rgba(74, 158, 255, 0.3); background: rgba(74, 158, 255, 0.06);">
+                        <span class="label">🔗 Link phát hiện <span class="detected-badge">${displayLinks.length}</span></span>
+                        <div style="margin-top: 4px;">
+                `;
+                
+                displayLinks.forEach((link, index) => {
+                    const isVerify = link.toLowerCase().match(/verify|confirm|activate|validate|xacminh|xacnhan|kichhoat/);
+                    linkHTML += `
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <span style="color: #a0aec0; font-size: 11px;">#${index + 1}</span>
+                            <a href="${link}" target="_blank" rel="noopener" class="link-value" style="font-size: 13px; ${isVerify ? 'color: #ffd93d;' : ''}">
+                                ${link.length > 60 ? link.substring(0, 60) + '...' : link}
+                            </a>
+                            <button onclick="copyText('${link}')" class="copy-btn" style="flex-shrink: 0;">📋</button>
+                            <button onclick="window.open('${link}','_blank')" class="copy-btn" style="flex-shrink: 0;">🔗</button>
+                        </div>
+                    `;
+                });
+                
+                linkHTML += `
+                        </div>
+                    </div>
+                `;
+                verifyLinkContainer.innerHTML += linkHTML;
+            }
+            
+            if (!hasContent) {
+                verifyLinkContainer.innerHTML = `
+                    <div style="color: #718096; font-size: 13px; padding: 8px 0;">
+                        🔍 Không phát hiện mã OTP hoặc link xác minh trong email này.
+                    </div>
+                `;
+            }
+        }
+
+        // ================================
+        // 12. OTP TOAST
+        // ================================
+        function showOTPToast(otp) {
+            showToast(`🔑 Mã OTP: ${otp}`, 'otp', 5000);
+            copyText(otp);
+        }
+
+        // ================================
+        // 13. DELETE MESSAGE
+        // ================================
+        async function deleteCurrentMessage() {
+            if (!currentMessageId) {
+                showToast('⚠️ Không có email để xóa', 'error');
+                return;
+            }
+            
+            if (!confirm('Bạn có chắc muốn xóa email này?')) return;
+            
+            try {
+                await apiCall(`/messages/${currentMessageId}`, {
+                    method: 'DELETE'
+                });
+                emailDetailCard.style.display = 'none';
+                showToast('✅ Đã xóa email', 'success');
+                await fetchMessages();
+            } catch (error) {
+                showToast('❌ Lỗi xóa: ' + error.message, 'error');
+            }
+        }
+
+        // ================================
+        // 14. DELETE ACCOUNT
+        // ================================
+        async function deleteAccount() {
+            if (!accountId) {
+                showToast('⚠️ Không có tài khoản để xóa', 'error');
+                return;
+            }
+            
+            if (!confirm(`Bạn có chắc muốn xóa tài khoản ${address}?`)) return;
+            
+            try {
+                await apiCall(`/accounts/${accountId}`, {
+                    method: 'DELETE'
+                });
+                
+                token = null;
+                accountId = null;
+                address = null;
+                password = null;
+                messages = [];
+                currentMessageId = null;
+                
+                currentInboxCard.style.display = 'none';
+                tokenCard.style.display = 'none';
+                emailList.innerHTML = '<div class="empty-state">📭 Tài khoản đã bị xóa. Tạo hộp thư mới.</div>';
+                emailDetailCard.style.display = 'none';
+                
+                accAddress.textContent = '-';
+                accQuota.textContent = '-';
+                accUsed.textContent = '-';
+                accStatus.textContent = 'Đã xóa';
+                accStatus.style.color = '#ff6b6b';
+                
+                localStorage.removeItem('mailtm_token');
+                localStorage.removeItem('mailtm_address');
+                localStorage.removeItem('mailtm_accountId');
+                
+                showToast('✅ Đã xóa tài khoản', 'success');
+            } catch (error) {
+                showToast('❌ Lỗi xóa: ' + error.message, 'error');
+            }
+        }
+
+        // ================================
+        // 15. TOGGLE VIEW
+        // ================================
+        function toggleView() {
+            if (isHtmlView) {
+                emailContent.textContent = currentTextContent || 'Không có nội dung text';
+                toggleViewBtn.textContent = '🔄 Xem HTML';
+                isHtmlView = false;
+            } else {
+                emailContent.innerHTML = currentHtmlContent || 'Không có nội dung HTML';
+                toggleViewBtn.textContent = '📄 Xem text';
+                isHtmlView = true;
+            }
+        }
+
+        // ================================
+        // 16. UTILITY
+        // ================================
+        function copyText(text) {
+            navigator.clipboard?.writeText(text).then(() => {
+                showToast('✅ Đã copy!', 'success');
+            }).catch(() => {
+                const input = document.createElement('input');
+                input.value = text;
+                document.body.appendChild(input);
+                input.select();
+                document.execCommand('copy');
+                document.body.removeChild(input);
+                showToast('✅ Đã copy!', 'success');
+            });
+        }
+
+        function copyAddress() {
+            if (address) copyText(address);
+        }
+
+        function clearEmailsDisplay() {
+            messages = [];
+            emailList.innerHTML = '<div class="empty-state">🗑️ Đã xóa danh sách hiển thị</div>';
+            emailDetailCard.style.display = 'none';
+            showToast('🗑️ Đã xóa danh sách hiển thị', 'info');
+        }
+
+        // ================================
+        // 17. EVENT LISTENERS
+        // ================================
+        createAccountBtn.addEventListener('click', createAccount);
+        deleteAccountBtn.addEventListener('click', deleteAccount);
+        checkMessagesBtn.addEventListener('click', fetchMessages);
+        refreshMessagesBtn.addEventListener('click', fetchMessages);
+        clearEmailsBtn.addEventListener('click', clearEmailsDisplay);
+        closeDetailBtn.addEventListener('click', () => emailDetailCard.style.display = 'none');
+        deleteMessageBtn.addEventListener('click', deleteCurrentMessage);
+        toggleViewBtn.addEventListener('click', toggleView);
+        copyTokenBtn.addEventListener('click', () => copyText(token));
+        refreshBtn.addEventListener('click', () => {
+            if (token) fetchMessages();
+            loadDomains();
+            showToast('🔄 Đã làm mới', 'info');
+        });
+
+        usernameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') createAccountBtn.click();
+        });
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') createAccountBtn.click();
+        });
+
+        // ================================
+        // 18. AUTO REFRESH
+        // ================================
+        let autoRefreshInterval = null;
+
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            autoRefreshInterval = setInterval(() => {
+                if (token) fetchMessages();
+            }, 30000);
+        }
+
+        // ================================
+        // 19. EXPOSE FUNCTIONS
+        // ================================
+        window.copyText = copyText;
+        window.copyAddress = copyAddress;
+        window.showOTPToast = showOTPToast;
+        window.showToast = showToast;
+
+        // ================================
+        // 20. INITIALIZATION
+        // ================================
+        async function init() {
+            console.log('🚀 Web Mail Ảo v2.0.0');
+            console.log('🔗 GitHub: https://github.com/tuquangnam07/Web-mail-ao');
+            console.log('🌐 Deploy: https://web-mail-ao.pages.dev/');
+            
+            await loadDomains();
+            
+            const savedToken = localStorage.getItem('mailtm_token');
+            const savedAddress = localStorage.getItem('mailtm_address');
+            const savedId = localStorage.getItem('mailtm_accountId');
+            
+            if (savedToken && savedAddress) {
+                token = savedToken;
+                address = savedAddress;
+                accountId = savedId;
+                
+                currentAddress.textContent = address;
+                currentInboxCard.style.display = 'block';
+                tokenCard.style.display = 'none'; // Ẩn token card
+                accAddress.textContent = address;
+                
+                try {
+                    await loadAccountInfo();
+                    await fetchMessages();
+                    showToast(`🔁 Đã đăng nhập: ${address}`, 'success');
+                } catch (e) {
+                    showToast('⚠️ Phiên đã hết hạn, tạo lại tài khoản', 'error');
+                    token = null;
+                    localStorage.removeItem('mailtm_token');
+                    localStorage.removeItem('mailtm_address');
+                    localStorage.removeItem('mailtm_accountId');
+                }
+            }
+            
+            startAutoRefresh();
+            console.log('✅ Sẵn sàng!');
+        }
+
+        init();
+    </script>
+</body>
+</html>
